@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <title>Определи вес</title>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+<div class="game-wrapper">
+  <div class="game-container">
+    
+    <!-- Стартовый экран -->
+    <div class="screen active" id="splash-screen">
+      <div class="splash-card">
+        <div class="scale-icon">⚖️</div>
+        <h1>Определи вес</h1>
+        <p class="subtitle">Лови гирьки и уравновешивай весы!</p>
+
+        <div class="input-group">
+          <label for="player-name">Ваше имя</label>
+          <input type="text" id="player-name" placeholder="Игрок" maxlength="20" autocomplete="off">
+        </div>
+
+        <div class="rules-box">
+          <h3>📋 Правила игры</h3>
+          <ul>
+            <li>Гирьки падают сверху — ловите их!</li>
+            <li>Цель: уравновесить левую и правую чаши</li>
+            <li>Полка — временное хранение (макс. 3 гирьки)</li>
+            <li>Когда весы равны — нажмите «Проверить»</li>
+          </ul>
+        </div>
+
+        <div class="rules-box">
+          <h3>🖥️ Управление (ПК)</h3>
+          <ul>
+            <li><b>Перетаскивание</b> — зажми и тащи гирьку</li>
+            <li><b>Клик</b> — выдели гирьку, затем:</li>
+            <li class="hotkey"><kbd>A</kbd> / <kbd>Ф</kbd> — на левую чашу</li>
+            <li class="hotkey"><kbd>D</kbd> / <kbd>В</kbd> — на правую чашу</li>
+            <li class="hotkey"><kbd>W</kbd> / <kbd>Ц</kbd> — на полку</li>
+            <li class="hotkey"><kbd>Space</kbd> — проверить баланс</li>
+          </ul>
+        </div>
+
+        <div class="rules-box">
+          <h3>📱 Управление (Телефон)</h3>
+          <ul>
+            <li><b>Тап + тащи</b> — перетаскивай гирьку</li>
+            <li><b>Тап + держи</b> — поймай падающую гирьку</li>
+            <li>Отпусти над чашей или полкой</li>
+          </ul>
+        </div>
+
+        <div class="history-box" id="splash-history" style="display:none">
+          <h3>📜 История <button class="btn-clear" id="btn-clear-splash">🗑️</button></h3>
+          <ul class="history-list" id="splash-history-list"></ul>
+        </div>
+
+        <button class="btn-start" id="btn-start">🎮 Начать игру</button>
+      </div>
+    </div>
+
+    <!-- Игровой экран -->
+    <div class="screen" id="game-screen">
+      <div class="game-hud">
+        <div class="hud-item">
+          <div class="hud-label">Уровень</div>
+          <div class="hud-value" id="hud-level">1</div>
+        </div>
+        <div class="hud-item">
+          <div class="hud-label">Раунд</div>
+          <div class="hud-value" id="hud-round">1/2</div>
+        </div>
+        <div class="hud-item">
+          <div class="hud-label">Время</div>
+          <div class="hud-value time" id="hud-time">60</div>
+        </div>
+        <div class="hud-item">
+          <div class="hud-label">Очки</div>
+          <div class="hud-value score" id="hud-score">0</div>
+        </div>
+      </div>
+
+      <div class="time-bar"><div class="time-bar-fill" id="time-bar"></div></div>
+      <div class="round-dots" id="round-dots"></div>
+
+      <div class="game-area" id="game-area">
+        <div class="fall-zone" id="fall-zone"></div>
+
+        <div class="shelf" id="shelf">
+          <span class="shelf-label">📦 Полка (макс. 3)</span>
+        </div>
+
+        <div class="scale-area">
+          <div class="scale-beam" id="beam"></div>
+          <div class="pan-zone left" id="pan-zone-left">
+            <div class="pan-rope"></div>
+            <div class="pan" id="pan-left" data-side="left"></div>
+            <div class="pan-total" id="total-left">0</div>
+          </div>
+          <div class="pan-zone right" id="pan-zone-right">
+            <div class="pan-rope"></div>
+            <div class="pan" id="pan-right" data-side="right"></div>
+            <div class="pan-total" id="total-right">0</div>
+          </div>
+          <div class="fulcrum"></div>
+        </div>
+      </div>
+
+      <div class="game-buttons">
+        <button class="btn-skip" id="btn-skip">⏭️</button>
+        <button class="btn-check" id="btn-check" disabled>✓ Проверить баланс</button>
+      </div>
+    </div>
+
+    <!-- Экран результатов -->
+    <div class="screen" id="results-screen">
+      <div class="results-card">
+        <h1 id="results-title">Игра окончена</h1>
+        <div class="final-score" id="final-score">0</div>
+        <p style="color:var(--muted)" id="results-msg"></p>
+
+        <div class="results-stats">
+          <div class="results-stat">
+            <div class="results-stat-value" id="stat-level">1</div>
+            <div class="results-stat-label">Уровень</div>
+          </div>
+          <div class="results-stat">
+            <div class="results-stat-value" id="stat-rounds">0</div>
+            <div class="results-stat-label">Раундов</div>
+          </div>
+          <div class="results-stat">
+            <div class="results-stat-value" id="stat-acc">0%</div>
+            <div class="results-stat-label">Точность</div>
+          </div>
+        </div>
+
+        <div class="history-box">
+          <h3>📜 История <button class="btn-clear" id="btn-clear-results">🗑️</button></h3>
+          <ul class="history-list" id="results-history-list"></ul>
+        </div>
+
+        <div class="btn-group">
+          <button class="btn-start" id="btn-restart">🔄 Играть снова</button>
+          <button class="btn-secondary" id="btn-new-player">👤 Сменить игрока</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script type="module" src="js/index.js"></script>
+</body>
+</html>

@@ -1,0 +1,58 @@
+/**
+ * Base styles - переменные, сброс, базовые элементы
+ */
+
+/* === CSS переменные === */
+:root {
+  --bg: #0f172a;
+  --card: #111827;
+  --text: #e5e7eb;
+  --muted: #9ca3af;
+  --accent: #22d3ee;
+  --lime: #84cc16;
+  --border: #1f2937;
+  --danger: #ef4444;
+  --warning: #f59e0b;
+  --maxw: 1200px;
+}
+
+/* === Сброс и базовые стили === */
+* {
+  box-sizing: border-box;
+  touch-action: manipulation;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: system-ui, -apple-system, Segoe UI, sans-serif;
+  background: radial-gradient(1200px 600px at 70% -10%, #10203a 0%, var(--bg) 60%);
+  color: var(--text);
+  line-height: 1.6;
+}
+
+/* === Контейнеры === */
+.container {
+  max-width: var(--maxw);
+  margin-inline: auto;
+  padding: 0 16px;
+}
+
+.game-wrapper {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow-x: hidden;
+}
+
+.game-container {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 15px;
+}
+

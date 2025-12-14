@@ -1,0 +1,10 @@
+/**
+ * Игра "Определи вес"
+ * Главный файл стилей - импорт всех модулей
+ */
+
+@import url('base.css');
+@import url('components.css');
+@import url('game.css');
+@import url('screens.css');
+@import url('animations.css');
