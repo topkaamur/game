@@ -7,7 +7,7 @@ import { state } from './state.js';
 import { isOver } from './utils.js';
 import { getElements, showToast } from './ui.js';
 import { renderAll } from './scale.js';
-import { selectWeight, selectFallingWeight } from './selection.js';
+import { selectWeight, selectFallingWeight, clearSelection } from './selection.js';
 import { resumeFalling } from './spawner.js';
 
 // Состояние перетаскивания
@@ -16,14 +16,56 @@ let dragData = { value: null, from: null, el: null };
 let dragStartPos = null;
 let isDragging = false;
 
+// Для отслеживания двойного тапа
+let lastTapTime = 0;
+let lastTapValue = null;
+let lastTapFrom = null;
+let tapMoved = false;
+
 /**
  * Сделать элемент перетаскиваемым
  */
 export function makeDraggable(element, from) {
-  element.addEventListener('touchstart', e => startDrag(e, element, from), { passive: false });
+  // Отслеживание движения для определения тапа vs перетаскивания
+  element.addEventListener('touchstart', e => {
+    tapMoved = false;
+    startDrag(e, element, from);
+  }, { passive: false });
+  
+  element.addEventListener('touchmove', () => {
+    tapMoved = true;
+  }, { passive: true });
+  
+  element.addEventListener('touchend', e => {
+    // Если было перетаскивание - не считаем как тап
+    if (tapMoved || isDragging) return;
+    
+    const value = element.dataset.value;
+    const now = Date.now();
+    
+    // Проверка на двойной тап
+    if (lastTapValue === value && lastTapFrom === from && now - lastTapTime < 400) {
+      e.preventDefault();
+      e.stopPropagation(); // не даём document.touchend (onEnd) обработать это как клик/выделение
+
+      // очищаем drag-состояние, потому что document.onEnd не вызовется
+      cleanupDrag();
+      clearSelection(false);
+      moveToShelfOnDoubleClick(element, from);
+      lastTapTime = 0;
+      lastTapValue = null;
+      lastTapFrom = null;
+      return;
+    }
+    
+    lastTapTime = now;
+    lastTapValue = value;
+    lastTapFrom = from;
+  }, { passive: false });
+  
   element.addEventListener('mousedown', e => startDrag(e, element, from));
   
-  // Дабл-клик — переместить на полку
+  // Дабл-клик (ПК) — переместить на полку
   element.addEventListener('dblclick', e => {
     e.preventDefault();
     moveToShelfOnDoubleClick(element, from);
@@ -45,6 +87,12 @@ function moveToShelfOnDoubleClick(element, from) {
     const shelf = document.getElementById('shelf');
     shelf.classList.add('shake');
     setTimeout(() => shelf.classList.remove('shake'), 400);
+
+    // Важно: если это падающая гирька, она могла быть "поймана" (пауза анимации).
+    // При переполнении не блокируем её — пусть продолжает падать.
+    if (from === 'falling' && element && element.parentNode) {
+      resumeFalling(element);
+    }
     return;
   }
   

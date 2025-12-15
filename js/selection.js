@@ -15,6 +15,11 @@ export const selected = {
   value: null
 };
 
+function isMobileLikeDevice() {
+  // max-width — “маленькие устройства”, pointer:coarse — тач-устройства
+  return window.matchMedia('(max-width: 768px)').matches || window.matchMedia('(pointer: coarse)').matches;
+}
+
 /**
  * Выделить гирьку на чаше/полке
  */
@@ -25,7 +30,9 @@ export function selectWeight(element, from) {
   selected.from = from;
   selected.value = parseInt(element.dataset.value);
   element.classList.add('selected');
-  showToast(`Гирька ${selected.value} — A/D/W`, 'info', 1200);
+  if (!isMobileLikeDevice()) {
+    showToast(`Гирька ${selected.value} — A/D/W`, 'info', 1200);
+  }
 }
 
 /**
@@ -38,7 +45,9 @@ export function selectFallingWeight(element) {
   selected.from = 'falling';
   selected.value = parseInt(element.dataset.value);
   element.classList.add('selected');
-  showToast(`Поймана ${selected.value} — A/D/W`, 'success', 1200);
+  if (!isMobileLikeDevice()) {
+    showToast(`Поймана ${selected.value} — A/D/W`, 'success', 1200);
+  }
 }
 
 /**
