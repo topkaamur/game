@@ -66,14 +66,23 @@ export function moveSelectedTo(target) {
   // Проверка лимитов
   if (target === 'left' && state.leftW.length >= CONFIG.panMax) {
     showToast('⚖️ Левая чаша полная!', 'error', 1000);
+    const pan = document.getElementById('pan-left');
+    pan.classList.add('shake-pan');
+    setTimeout(() => pan.classList.remove('shake-pan'), 400);
     return;
   }
   if (target === 'right' && state.rightW.length >= CONFIG.panMax) {
     showToast('⚖️ Правая чаша полная!', 'error', 1000);
+    const pan = document.getElementById('pan-right');
+    pan.classList.add('shake-pan');
+    setTimeout(() => pan.classList.remove('shake-pan'), 400);
     return;
   }
   if (target === 'shelf' && state.shelfW.length >= CONFIG.shelfMax) {
     showToast('📦 Полка заполнена!', 'error', 1000);
+    const shelf = document.getElementById('shelf');
+    shelf.classList.add('shake');
+    setTimeout(() => shelf.classList.remove('shake'), 400);
     return;
   }
   if (target === selected.from) return;

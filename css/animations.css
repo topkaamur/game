@@ -114,34 +114,46 @@
 
 @keyframes shakeShelf {
   0%, 100% {
-    transform: translateX(-50%);
+    transform: translateX(-50%) rotate(0deg);
   }
-  25% {
-    transform: translateX(calc(-50% - 8px));
+  20% {
+    transform: translateX(-50%) rotate(-3deg);
   }
-  75% {
-    transform: translateX(calc(-50% + 8px));
+  40% {
+    transform: translateX(-50%) rotate(3deg);
+  }
+  60% {
+    transform: translateX(-50%) rotate(-2deg);
+  }
+  80% {
+    transform: translateX(-50%) rotate(2deg);
   }
 }
 
 .shelf.shake {
-  animation: shakeShelf 0.3s ease;
+  animation: shakeShelf 0.4s ease;
 }
 
 @keyframes shakePan {
   0%, 100% {
-    transform: translateX(0);
+    transform: rotate(0deg);
   }
-  25% {
-    transform: translateX(-6px);
+  20% {
+    transform: rotate(-4deg);
   }
-  75% {
-    transform: translateX(6px);
+  40% {
+    transform: rotate(4deg);
+  }
+  60% {
+    transform: rotate(-3deg);
+  }
+  80% {
+    transform: rotate(3deg);
   }
 }
 
 .pan.shake-pan {
-  animation: shakePan 0.3s ease;
+  animation: shakePan 0.4s ease;
 }
 
 /* === Фоновые частицы === */

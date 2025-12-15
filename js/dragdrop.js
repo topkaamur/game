@@ -42,6 +42,9 @@ function moveToShelfOnDoubleClick(element, from) {
   // Проверяем лимит полки
   if (state.shelfW.length >= CONFIG.shelfMax) {
     showToast('📦 Полка заполнена!', 'error', 1000);
+    const shelf = document.getElementById('shelf');
+    shelf.classList.add('shake');
+    setTimeout(() => shelf.classList.remove('shake'), 400);
     return;
   }
   
