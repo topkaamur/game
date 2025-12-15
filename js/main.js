@@ -7,7 +7,7 @@ import { showScreen } from './utils.js';
 import { getElements, showToast } from './ui.js';
 import { getHistory, clearHistory, renderHistory } from './storage.js';
 import { selected, clearSelection, moveSelectedTo } from './selection.js';
-import { startGame, startLevel, checkBalance, endGame } from './game.js';
+import { startGame, startSingleLevel, startLevel, checkBalance, endGame } from './game.js';
 
 /**
  * Обновить историю на стартовом экране
@@ -30,8 +30,16 @@ function updateSplashHistory() {
 function init() {
   const el = getElements();
 
-  // Кнопка старта
+  // Кнопка старта (все уровни)
   el.btnStart.onclick = startGame;
+
+  // Кнопки выбора уровня
+  document.querySelectorAll('.level-btn').forEach(btn => {
+    btn.onclick = () => {
+      const levelIndex = parseInt(btn.dataset.level);
+      startSingleLevel(levelIndex);
+    };
+  });
 
   // Кнопка проверки
   el.btnCheck.onclick = checkBalance;

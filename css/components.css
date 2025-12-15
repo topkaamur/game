@@ -307,3 +307,88 @@
   border-color: var(--danger);
 }
 
+/* === Выбор уровня === */
+.level-select {
+  margin-top: 20px;
+}
+
+.level-select h3 {
+  color: var(--accent);
+  font-size: 1rem;
+  margin-bottom: 12px;
+  text-align: center;
+}
+
+.level-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 15px;
+}
+
+.level-btn {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  background: rgba(0, 0, 0, 0.3);
+  border: 2px solid var(--border);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: 0.2s;
+  text-align: left;
+}
+
+.level-btn:hover {
+  border-color: var(--accent);
+  background: rgba(34, 211, 238, 0.1);
+  transform: translateX(4px);
+}
+
+.level-btn:active {
+  transform: scale(0.98);
+}
+
+.level-num {
+  width: 36px;
+  height: 36px;
+  background: linear-gradient(135deg, var(--accent), var(--lime));
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: #04121d;
+  flex-shrink: 0;
+}
+
+.level-info {
+  flex: 1;
+}
+
+.level-name {
+  font-weight: 700;
+  color: var(--text);
+  font-size: 0.95rem;
+  display: block;
+}
+
+.level-desc {
+  font-size: 0.75rem;
+  color: var(--muted);
+  display: block;
+}
+
+.level-btn:nth-child(1) .level-num {
+  background: linear-gradient(135deg, #22d3ee, #06b6d4);
+}
+
+.level-btn:nth-child(2) .level-num {
+  background: linear-gradient(135deg, #fbbf24, #f59e0b);
+}
+
+.level-btn:nth-child(3) .level-num {
+  background: linear-gradient(135deg, #ef4444, #dc2626);
+}
+

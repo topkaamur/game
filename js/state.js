@@ -19,7 +19,8 @@ const initialState = {
   timerInt: null,
   spawnInt: null,
   weightPool: [],
-  targetSum: 0  // Для уровня 2 (точная сумма)
+  targetSum: 0,      // Для уровня 2 (точная сумма)
+  singleLevel: false // Режим одного уровня
 };
 
 // Текущее состояние

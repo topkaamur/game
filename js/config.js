@@ -41,11 +41,11 @@ export const CONFIG = {
       min: 5,
       max: 25,
       fallTime: 3000,
-      spawnInterval: 1500,
+      spawnInterval: 1000,
       timeLimit: 60,
       rounds: 2,
       mult: 2,
-      bombChance: 0.25,
+      bombChance: 0.5,
       bombPenalty: 50
     }
   ],

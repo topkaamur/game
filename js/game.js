@@ -67,7 +67,7 @@ export function renderRoundDots() {
 }
 
 /**
- * Начать игру
+ * Начать игру (все уровни с начала)
  */
 export function startGame() {
   const el = getElements();
@@ -76,6 +76,22 @@ export function startGame() {
   state.score = 0;
   state.totalRounds = 0;
   state.successRounds = 0;
+  state.singleLevel = false;
+  showScreen('game-screen');
+  startLevel();
+}
+
+/**
+ * Начать конкретный уровень
+ */
+export function startSingleLevel(levelIndex) {
+  const el = getElements();
+  state.name = el.nameInput.value.trim() || 'Игрок';
+  state.level = levelIndex;
+  state.score = 0;
+  state.totalRounds = 0;
+  state.successRounds = 0;
+  state.singleLevel = true; // Режим одного уровня
   showScreen('game-screen');
   startLevel();
 }
@@ -253,7 +269,7 @@ function showLevelComplete() {
   const bonus = 150 * cfg.mult;
   state.score += bonus;
 
-  const nextLevel = CONFIG.levels[state.level + 1];
+  const nextLevel = !state.singleLevel ? CONFIG.levels[state.level + 1] : null;
 
   const ov = document.createElement('div');
   ov.className = 'level-overlay';
@@ -273,7 +289,7 @@ function showLevelComplete() {
       ${nextLevel
         ? `<p><b>${nextLevel.name}</b>: ${nextLevel.description}</p>
            <button class="btn-start" id="btn-next">▶ Далее</button>`
-        : `<p style="color:var(--lime)">Все уровни пройдены!</p>
+        : `<p style="color:var(--lime)">${state.singleLevel ? 'Уровень завершён!' : 'Все уровни пройдены!'}</p>
            <button class="btn-start" id="btn-finish">🏆 Финиш</button>`}
     </div>
   `;
@@ -303,6 +319,8 @@ export function endGame(reason) {
 
   const h = saveGame(reason);
 
+  const cfg = CONFIG.levels[state.level];
+  
   const titles = {
     complete: '🏆 Победа!',
     time: '⏰ Время вышло!',
@@ -311,7 +329,9 @@ export function endGame(reason) {
   };
 
   const msgs = {
-    complete: 'Вы прошли все уровни!',
+    complete: state.singleLevel 
+      ? `Уровень «${cfg.name}» пройден!` 
+      : 'Вы прошли все уровни!',
     time: 'Попробуйте ещё!',
     failed: 'Много ошибок',
     skipped: ''
@@ -335,6 +355,7 @@ export default {
   updateHUD,
   renderRoundDots,
   startGame,
+  startSingleLevel,
   startLevel,
   startRound,
   checkBalance,
