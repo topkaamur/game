@@ -18,7 +18,8 @@ const initialState = {
   playing: false,
   timerInt: null,
   spawnInt: null,
-  weightPool: []
+  weightPool: [],
+  targetSum: 0  // Для уровня 2 (точная сумма)
 };
 
 // Текущее состояние
@@ -48,6 +49,7 @@ export function resetLevelState() {
   state.rightW = [];
   state.shelfW = [];
   state.weightPool = [];
+  state.targetSum = 0;
 }
 
 /**
@@ -61,4 +63,3 @@ export function resetRoundState() {
 }
 
 export default state;
-

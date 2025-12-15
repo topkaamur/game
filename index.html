@@ -24,12 +24,12 @@
         </div>
 
         <div class="rules-box">
-          <h3>📋 Правила игры</h3>
+          <h3>📋 Уровни игры</h3>
           <ul>
-            <li>Гирьки падают сверху — ловите их!</li>
-            <li>Цель: уравновесить левую и правую чаши</li>
+            <li><b>Ур. 1 — Баланс:</b> уравновесь левую и правую чаши</li>
+            <li><b>Ур. 2 — Точная сумма:</b> набери целевое число на каждой чаше</li>
+            <li><b>Ур. 3 — Ловушки:</b> не лови бомбы 💣 — они отнимают очки!</li>
             <li>Полка — временное хранение (макс. 3 гирьки)</li>
-            <li>Когда весы равны — нажмите «Проверить»</li>
           </ul>
         </div>
 
@@ -86,6 +86,9 @@
 
       <div class="time-bar"><div class="time-bar-fill" id="time-bar"></div></div>
       <div class="round-dots" id="round-dots"></div>
+      <div class="target-display" id="target-display" style="display:none">
+        🎯 Цель: <span id="target-value">0</span> на каждой чаше
+      </div>
 
       <div class="game-area" id="game-area">
         <div class="fall-zone" id="fall-zone"></div>

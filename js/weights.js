@@ -40,9 +40,9 @@ function generateWeightsForSum(targetSum, count, min, max) {
 }
 
 /**
- * Генерация набора решаемых гирек
+ * Генерация гирек для уровня "Баланс"
  */
-export function generateSolvableWeights(cfg, count) {
+function generateBalanceWeights(cfg, count) {
   const weights = [];
   const minTarget = cfg.min * 2;
   const maxTarget = Math.min(cfg.max * 3, 100);
@@ -62,13 +62,77 @@ export function generateSolvableWeights(cfg, count) {
 }
 
 /**
- * Пополнить пул гирек
+ * Генерация гирек для уровня "Точная сумма"
+ */
+function generateTargetWeights(cfg, count) {
+  const weights = [];
+  const target = rand(cfg.targetMin, cfg.targetMax);
+  state.targetSum = target;
+
+  // Гирьки для левой и правой чаши
+  const leftWeights = generateWeightsForSum(target, rand(2, 4), cfg.min, cfg.max);
+  const rightWeights = generateWeightsForSum(target, rand(2, 4), cfg.min, cfg.max);
+
+  weights.push(...leftWeights, ...rightWeights);
+
+  // Добавляем отвлекающие гирьки
+  const distractorCount = Math.max(0, count - weights.length);
+  for (let i = 0; i < distractorCount; i++) {
+    weights.push(rand(cfg.min, cfg.max));
+  }
+
+  return shuffle(weights);
+}
+
+/**
+ * Генерация гирек для уровня "Ловушки"
+ */
+function generateTrapsWeights(cfg, count) {
+  const weights = [];
+  const minTarget = cfg.min * 2;
+  const maxTarget = Math.min(cfg.max * 3, 100);
+  const targetSum = Math.max(rand(minTarget, maxTarget), cfg.min * 2);
+
+  // Обычные гирьки для решения
+  const leftWeights = generateWeightsForSum(targetSum, rand(2, 4), cfg.min, cfg.max);
+  const rightWeights = generateWeightsForSum(targetSum, rand(2, 4), cfg.min, cfg.max);
+
+  weights.push(...leftWeights, ...rightWeights);
+
+  // Добавляем отвлекающие гирьки
+  const distractorCount = Math.max(0, count - weights.length);
+  for (let i = 0; i < distractorCount; i++) {
+    weights.push(rand(cfg.min, cfg.max));
+  }
+
+  // Добавляем бомбы (отрицательные значения как маркер)
+  const bombCount = Math.floor(count * cfg.bombChance);
+  for (let i = 0; i < bombCount; i++) {
+    weights.push(-rand(cfg.min, cfg.max)); // Отрицательное = бомба
+  }
+
+  return shuffle(weights);
+}
+
+/**
+ * Пополнить пул гирек в зависимости от типа уровня
  */
 export function refillWeightPool() {
   const cfg = CONFIG.levels[state.level];
   const count = rand(12, 20);
-  state.weightPool = shuffle(generateSolvableWeights(cfg, count));
+
+  switch (cfg.type) {
+    case 'target':
+      state.weightPool = generateTargetWeights(cfg, count);
+      break;
+    case 'traps':
+      state.weightPool = generateTrapsWeights(cfg, count);
+      break;
+    case 'balance':
+    default:
+      state.weightPool = generateBalanceWeights(cfg, count);
+      break;
+  }
 }
 
-export default { generateSolvableWeights, refillWeightPool };
-
+export default { refillWeightPool };

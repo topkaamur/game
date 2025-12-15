@@ -7,7 +7,9 @@ export const CONFIG = {
   levels: [
     {
       id: 1,
-      name: 'Лёгкий',
+      name: 'Баланс',
+      description: 'Уравновесь левую и правую чаши',
+      type: 'balance',
       min: 1,
       max: 10,
       fallTime: 4000,
@@ -18,25 +20,33 @@ export const CONFIG = {
     },
     {
       id: 2,
-      name: 'Средний',
+      name: 'Точная сумма',
+      description: 'Набери целевую сумму на каждой чаше',
+      type: 'target',
       min: 1,
-      max: 25,
-      fallTime: 3200,
-      spawnInterval: 1700,
-      timeLimit: 55,
+      max: 15,
+      fallTime: 3500,
+      spawnInterval: 1800,
+      timeLimit: 70,
       rounds: 2,
-      mult: 1.5
+      mult: 1.5,
+      targetMin: 15,
+      targetMax: 30
     },
     {
       id: 3,
-      name: 'Сложный',
+      name: 'Ловушки',
+      description: 'Не лови бомбы! Они отнимают очки',
+      type: 'traps',
       min: 5,
-      max: 50,
-      fallTime: 2500,
-      spawnInterval: 1400,
-      timeLimit: 50,
+      max: 25,
+      fallTime: 3000,
+      spawnInterval: 1500,
+      timeLimit: 60,
       rounds: 2,
-      mult: 2
+      mult: 2,
+      bombChance: 0.25,
+      bombPenalty: 50
     }
   ],
 
@@ -60,4 +70,3 @@ export const CONFIG = {
 };
 
 export default CONFIG;
-

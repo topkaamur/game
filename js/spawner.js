@@ -5,7 +5,7 @@
 import { CONFIG } from './config.js';
 import { state } from './state.js';
 import { rand } from './utils.js';
-import { getElements } from './ui.js';
+import { getElements, showToast } from './ui.js';
 import { refillWeightPool } from './weights.js';
 import { makeDraggable } from './dragdrop.js';
 import { updateHUD } from './game.js';
@@ -24,10 +24,14 @@ export function spawnWeight() {
   }
 
   const v = state.weightPool.pop();
+  const isBomb = v < 0;
+  const displayValue = Math.abs(v);
+
   const w = document.createElement('div');
-  w.className = 'falling-weight';
-  w.textContent = v;
+  w.className = isBomb ? 'falling-weight bomb' : 'falling-weight';
+  w.textContent = isBomb ? '💣' : displayValue;
   w.dataset.value = v;
+  w.dataset.isBomb = isBomb;
 
   const zoneWidth = el.fallZone.offsetWidth || 300;
   w.style.left = rand(15, Math.max(50, zoneWidth - 70)) + 'px';
@@ -37,50 +41,49 @@ export function spawnWeight() {
 
   el.fallZone.appendChild(w);
 
-  // Обработчик для поимки гирьки
-  const startFallDrag = (e) => {
+  // Обработчики для поимки гирьки
+  const handleCatch = (e) => {
     e.preventDefault();
+    
     if (w.dataset.fallTimeout) {
       clearTimeout(parseInt(w.dataset.fallTimeout));
       delete w.dataset.fallTimeout;
     }
+
+    // Если это бомба — штраф!
+    if (isBomb) {
+      const penalty = cfg.bombPenalty || 50;
+      state.score = Math.max(0, state.score - penalty);
+      showToast(`💥 Бомба! -${penalty}`, 'error', 1500);
+      w.style.animation = 'explode 0.4s ease forwards';
+      setTimeout(() => w.remove(), 400);
+      updateHUD();
+      return;
+    }
+
     w.style.animationPlayState = 'paused';
     w.classList.add('caught');
-    
-    // Импортируем startDrag из dragdrop через makeDraggable событие
-    const event = new CustomEvent('weightCaught', { detail: { element: w } });
-    w.dispatchEvent(event);
   };
 
-  w.addEventListener('touchstart', (e) => {
-    e.preventDefault();
-    if (w.dataset.fallTimeout) {
-      clearTimeout(parseInt(w.dataset.fallTimeout));
-      delete w.dataset.fallTimeout;
-    }
-    w.style.animationPlayState = 'paused';
-    w.classList.add('caught');
-  }, { passive: false });
+  w.addEventListener('touchstart', handleCatch, { passive: false });
+  w.addEventListener('mousedown', handleCatch);
 
-  w.addEventListener('mousedown', (e) => {
-    e.preventDefault();
-    if (w.dataset.fallTimeout) {
-      clearTimeout(parseInt(w.dataset.fallTimeout));
-      delete w.dataset.fallTimeout;
-    }
-    w.style.animationPlayState = 'paused';
-    w.classList.add('caught');
-  });
-
-  makeDraggable(w, 'falling');
+  // Только для обычных гирек
+  if (!isBomb) {
+    makeDraggable(w, 'falling');
+  }
 
   // Таймаут пропуска гирьки
   const fallTimeout = setTimeout(() => {
     if (w.parentNode && !w.classList.contains('caught')) {
       w.style.animation = 'flyAway 0.3s ease forwards';
       setTimeout(() => w.remove(), 300);
-      state.score = Math.max(0, state.score - CONFIG.missedPenalty * cfg.mult);
-      updateHUD();
+      
+      // Штраф только за пропуск обычных гирек, не бомб
+      if (!isBomb) {
+        state.score = Math.max(0, state.score - CONFIG.missedPenalty * cfg.mult);
+        updateHUD();
+      }
     }
   }, Math.round(fallVariation));
 
@@ -149,4 +152,3 @@ export function stopSpawning() {
 }
 
 export default { spawnWeight, resumeFalling, startSpawning, stopSpawning };
-

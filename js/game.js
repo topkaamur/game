@@ -6,7 +6,7 @@ import { CONFIG } from './config.js';
 import { state, resetRoundState } from './state.js';
 import { $, showScreen } from './utils.js';
 import { getElements, showToast } from './ui.js';
-import { renderAll } from './scale.js';
+import { renderAll, updateScale } from './scale.js';
 import { refillWeightPool } from './weights.js';
 import { startSpawning, stopSpawning } from './spawner.js';
 import { saveGame, renderHistory } from './storage.js';
@@ -34,6 +34,16 @@ export function updateHUD() {
   el.timeBar.classList.remove('warning', 'danger');
   if (pct <= 20) el.timeBar.classList.add('danger');
   else if (pct <= 40) el.timeBar.classList.add('warning');
+
+  // Целевая сумма для уровня 2
+  if (el.targetDisplay) {
+    if (cfg.type === 'target' && state.targetSum > 0) {
+      el.targetDisplay.style.display = 'block';
+      el.targetValue.textContent = state.targetSum;
+    } else {
+      el.targetDisplay.style.display = 'none';
+    }
+  }
 }
 
 /**
@@ -79,6 +89,10 @@ export function startLevel() {
   state.roundResults = [];
   state.timeLeft = cfg.timeLimit;
   state.playing = true;
+  
+  // Показать подсказку по уровню
+  showToast(`${cfg.name}: ${cfg.description}`, 'info', 3000);
+  
   updateHUD();
   renderRoundDots();
   startRound();
@@ -97,6 +111,7 @@ export function startRound() {
   renderAll();
   stopSpawning();
   startSpawning();
+  updateHUD();
 }
 
 /**
@@ -113,48 +128,76 @@ export function startTimer() {
 }
 
 /**
- * Проверить баланс
+ * Проверить баланс/условие победы
  */
 export function checkBalance() {
   if (!state.playing) return;
 
   const el = getElements();
+  const cfg = CONFIG.levels[state.level];
   const L = state.leftW.reduce((a, b) => a + b, 0);
   const R = state.rightW.reduce((a, b) => a + b, 0);
 
   if (L === 0 && R === 0) return;
 
-  const cfg = CONFIG.levels[state.level];
-  state.totalRounds++;
-  state.playing = false;
-  el.btnCheck.disabled = true;
-  stopSpawning();
+  let success = false;
+  let message = '';
 
-  if (L === R && L > 0) {
+  // Проверка в зависимости от типа уровня
+  switch (cfg.type) {
+    case 'target':
+      // Уровень 2: обе чаши должны иметь целевую сумму
+      success = (L === state.targetSum && R === state.targetSum);
+      if (success) {
+        message = `✓ Обе чаши = ${state.targetSum}!`;
+      } else {
+        message = `Нужно ${state.targetSum} на каждой чаше (сейчас: ${L} и ${R})`;
+      }
+      break;
+
+    case 'traps':
+    case 'balance':
+    default:
+      // Уровень 1 и 3: баланс чаш
+      success = (L === R && L > 0);
+      message = success ? '✓ Баланс!' : `Не равно! (${L} ≠ ${R})`;
+      break;
+  }
+
+  if (success) {
+    // Успех — останавливаем раунд и начисляем очки
+    state.totalRounds++;
     state.successRounds++;
+    state.playing = false;
+    el.btnCheck.disabled = true;
+    stopSpawning();
+
     let pts = CONFIG.basePoints * cfg.mult;
     if (state.leftW.length + state.rightW.length >= 4) pts += CONFIG.perfectBonus;
     pts += state.timeLeft * CONFIG.timeBonus * cfg.mult;
     state.score += pts;
     state.roundResults.push(true);
-    showRoundMsg(true, pts);
+    
+    showRoundMsg(true, pts, message);
+    updateHUD();
+    renderRoundDots();
   } else {
+    // Неудача — просто показываем предупреждение, игра продолжается
     const pen = CONFIG.wrongPenalty * cfg.mult;
     state.score = Math.max(0, state.score - pen);
-    state.roundResults.push(false);
+    
     el.beam.classList.add('shake');
     setTimeout(() => el.beam.classList.remove('shake'), 250);
-    showRoundMsg(false, -pen);
+    
+    showToast(`❌ ${message} (-${Math.round(pen)})`, 'error', 2000);
+    updateHUD();
   }
-
-  updateHUD();
-  renderRoundDots();
 }
 
 /**
  * Показать сообщение раунда
  */
-function showRoundMsg(ok, pts) {
+function showRoundMsg(ok, pts, message) {
   const el = getElements();
   state.playing = false;
   el.btnCheck.disabled = true;
@@ -162,7 +205,7 @@ function showRoundMsg(ok, pts) {
   const msg = document.createElement('div');
   msg.className = 'game-msg ' + (ok ? 'success' : 'fail');
   msg.innerHTML = `
-    <h2>${ok ? '✓ Баланс!' : '✗ Не равно!'}</h2>
+    <h2>${message}</h2>
     <p>${ok ? 'Отлично!' : 'Попробуйте ещё!'}</p>
     <div class="pts ${pts >= 0 ? 'plus' : 'minus'}">${pts >= 0 ? '+' : ''}${Math.round(pts)}</div>
   `;
@@ -210,6 +253,8 @@ function showLevelComplete() {
   const bonus = 150 * cfg.mult;
   state.score += bonus;
 
+  const nextLevel = CONFIG.levels[state.level + 1];
+
   const ov = document.createElement('div');
   ov.className = 'level-overlay';
   ov.innerHTML = `
@@ -225,8 +270,8 @@ function showLevelComplete() {
           <div class="stat-label">Всего</div>
         </div>
       </div>
-      ${state.level < CONFIG.levels.length - 1
-        ? `<p>Следующий: ${CONFIG.levels[state.level + 1].name}</p>
+      ${nextLevel
+        ? `<p><b>${nextLevel.name}</b>: ${nextLevel.description}</p>
            <button class="btn-start" id="btn-next">▶ Далее</button>`
         : `<p style="color:var(--lime)">Все уровни пройдены!</p>
            <button class="btn-start" id="btn-finish">🏆 Финиш</button>`}
@@ -234,10 +279,10 @@ function showLevelComplete() {
   `;
   el.gameArea.appendChild(ov);
 
-  const btnId = state.level < CONFIG.levels.length - 1 ? 'btn-next' : 'btn-finish';
+  const btnId = nextLevel ? 'btn-next' : 'btn-finish';
   $(btnId).onclick = () => {
     ov.remove();
-    if (state.level < CONFIG.levels.length - 1) {
+    if (nextLevel) {
       state.level++;
       startLevel();
     } else {
@@ -295,4 +340,3 @@ export default {
   checkBalance,
   endGame
 };
-

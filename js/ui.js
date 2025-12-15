@@ -38,6 +38,8 @@ export function getElements() {
     hudScore: $('hud-score'),
     timeBar: $('time-bar'),
     roundDots: $('round-dots'),
+    targetDisplay: $('target-display'),
+    targetValue: $('target-value'),
 
     // Игровая область
     gameArea: $('game-area'),

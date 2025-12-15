@@ -97,6 +97,24 @@
   background: var(--danger);
 }
 
+/* === Целевая сумма (уровень 2) === */
+.target-display {
+  text-align: center;
+  padding: 8px 16px;
+  margin-bottom: 10px;
+  background: linear-gradient(90deg, rgba(34, 211, 238, 0.15), rgba(132, 204, 22, 0.15));
+  border: 1px solid rgba(34, 211, 238, 0.3);
+  border-radius: 10px;
+  font-size: 0.9rem;
+  color: var(--text);
+}
+
+.target-display #target-value {
+  font-weight: 700;
+  font-size: 1.1rem;
+  color: var(--accent);
+}
+
 /* === Игровая область === */
 .game-area {
   background: linear-gradient(180deg, #0a1628 0%, #0f172a 100%);
@@ -149,6 +167,43 @@
   transform: scale(1.15);
   box-shadow: 0 0 0 3px var(--accent), 0 8px 25px rgba(34, 211, 238, 0.4);
   z-index: 100;
+}
+
+/* === Бомбы (уровень 3) === */
+.falling-weight.bomb {
+  background: linear-gradient(135deg, #374151 0%, #1f2937 100%);
+  box-shadow: 0 4px 15px rgba(239, 68, 68, 0.4);
+  font-size: 1.4rem;
+  cursor: not-allowed;
+  animation: bombPulse 0.6s ease infinite, fall 4000ms linear forwards;
+}
+
+.falling-weight.bomb:hover {
+  transform: scale(1.05);
+}
+
+@keyframes bombPulse {
+  0%, 100% {
+    box-shadow: 0 4px 15px rgba(239, 68, 68, 0.4);
+  }
+  50% {
+    box-shadow: 0 4px 25px rgba(239, 68, 68, 0.7);
+  }
+}
+
+@keyframes explode {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.5);
+    opacity: 0.8;
+  }
+  100% {
+    transform: scale(2);
+    opacity: 0;
+  }
 }
 
 .pan-weight {
