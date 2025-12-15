@@ -144,3 +144,165 @@
   animation: shakePan 0.3s ease;
 }
 
+/* === Фоновые частицы === */
+.bg-particles {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: -1;
+  overflow: hidden;
+}
+
+.bg-particle {
+  position: absolute;
+  background: linear-gradient(135deg, var(--accent), var(--lime));
+  border-radius: 50%;
+  animation: floatParticle 20s ease-in-out infinite;
+}
+
+@keyframes floatParticle {
+  0%, 100% {
+    transform: translate(0, 0) rotate(0deg);
+    opacity: 0.1;
+  }
+  25% {
+    transform: translate(30px, -50px) rotate(90deg);
+    opacity: 0.3;
+  }
+  50% {
+    transform: translate(-20px, -100px) rotate(180deg);
+    opacity: 0.2;
+  }
+  75% {
+    transform: translate(40px, -50px) rotate(270deg);
+    opacity: 0.3;
+  }
+}
+
+/* === Конфетти (победа) === */
+.confetti-container {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 9999;
+  overflow: hidden;
+}
+
+.confetti {
+  position: absolute;
+  top: -20px;
+  width: 12px;
+  height: 12px;
+  animation: confettiFall 3s ease-out forwards;
+}
+
+.confetti.square {
+  border-radius: 2px;
+}
+
+.confetti.circle {
+  border-radius: 50%;
+}
+
+.confetti.triangle {
+  width: 0;
+  height: 0;
+  background: none !important;
+  border-left: 6px solid transparent;
+  border-right: 6px solid transparent;
+  border-bottom: 12px solid var(--accent);
+}
+
+@keyframes confettiFall {
+  0% {
+    transform: translateY(0) rotate(0deg) scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(100vh) rotate(720deg) scale(0.5);
+    opacity: 0;
+  }
+}
+
+/* === Эффект проигрыша === */
+.lose-effect-container {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 9999;
+  overflow: hidden;
+}
+
+.lose-particle {
+  position: absolute;
+  top: -50px;
+  font-size: 2rem;
+  animation: loseFall 2.5s ease-in forwards;
+}
+
+@keyframes loseFall {
+  0% {
+    transform: translateY(0) rotate(0deg);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(100vh) rotate(360deg);
+    opacity: 0;
+  }
+}
+
+/* === Эффект успешного раунда === */
+.success-burst {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  z-index: 9999;
+}
+
+.success-star {
+  position: absolute;
+  font-size: 1.5rem;
+  animation: starBurst 0.8s ease-out forwards;
+  --angle: 0deg;
+}
+
+@keyframes starBurst {
+  0% {
+    transform: rotate(var(--angle)) translateX(0) scale(0);
+    opacity: 1;
+  }
+  100% {
+    transform: rotate(var(--angle)) translateX(100px) scale(1.5);
+    opacity: 0;
+  }
+}
+
+/* === Пульсация фона при событиях === */
+@keyframes bgPulseWin {
+  0%, 100% {
+    box-shadow: inset 0 0 100px rgba(132, 204, 22, 0);
+  }
+  50% {
+    box-shadow: inset 0 0 100px rgba(132, 204, 22, 0.15);
+  }
+}
+
+@keyframes bgPulseLose {
+  0%, 100% {
+    box-shadow: inset 0 0 100px rgba(239, 68, 68, 0);
+  }
+  50% {
+    box-shadow: inset 0 0 100px rgba(239, 68, 68, 0.15);
+  }
+}
+
+.game-wrapper.win-pulse {
+  animation: bgPulseWin 0.5s ease;
+}
+
+.game-wrapper.lose-pulse {
+  animation: bgPulseLose 0.5s ease;
+}
+

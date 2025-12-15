@@ -8,6 +8,7 @@ import { getElements, showToast } from './ui.js';
 import { getHistory, clearHistory, renderHistory } from './storage.js';
 import { selected, clearSelection, moveSelectedTo } from './selection.js';
 import { startGame, startSingleLevel, startLevel, checkBalance, endGame } from './game.js';
+import { initBackgroundParticles } from './effects.js';
 
 /**
  * Обновить историю на стартовом экране
@@ -125,6 +126,9 @@ function init() {
       clearSelection(true);
     }
   });
+
+  // Инициализация фоновых частиц
+  initBackgroundParticles();
 
   // Инициализация
   updateSplashHistory();

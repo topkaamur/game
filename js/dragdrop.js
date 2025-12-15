@@ -22,6 +22,48 @@ let isDragging = false;
 export function makeDraggable(element, from) {
   element.addEventListener('touchstart', e => startDrag(e, element, from), { passive: false });
   element.addEventListener('mousedown', e => startDrag(e, element, from));
+  
+  // Дабл-клик — переместить на полку
+  element.addEventListener('dblclick', e => {
+    e.preventDefault();
+    moveToShelfOnDoubleClick(element, from);
+  });
+}
+
+/**
+ * Переместить гирьку на полку по дабл-клику
+ */
+function moveToShelfOnDoubleClick(element, from) {
+  if (!state.playing) return;
+  if (from === 'shelf') return; // Уже на полке
+  
+  const value = parseInt(element.dataset.value);
+  
+  // Проверяем лимит полки
+  if (state.shelfW.length >= CONFIG.shelfMax) {
+    showToast('📦 Полка заполнена!', 'error', 1000);
+    return;
+  }
+  
+  // Удаляем из источника
+  if (from === 'falling') {
+    if (element.dataset.fallTimeout) {
+      clearTimeout(parseInt(element.dataset.fallTimeout));
+    }
+    element.remove();
+  } else if (from === 'left') {
+    const i = state.leftW.indexOf(value);
+    if (i > -1) state.leftW.splice(i, 1);
+  } else if (from === 'right') {
+    const i = state.rightW.indexOf(value);
+    if (i > -1) state.rightW.splice(i, 1);
+  }
+  
+  // Добавляем на полку
+  state.shelfW.push(value);
+  
+  showToast(`📦 +${value} на полку`, 'success', 800);
+  renderAll();
 }
 
 /**

@@ -10,6 +10,7 @@ import { renderAll, updateScale } from './scale.js';
 import { refillWeightPool } from './weights.js';
 import { startSpawning, stopSpawning } from './spawner.js';
 import { saveGame, renderHistory } from './storage.js';
+import { showConfetti, showLoseEffect, showSuccessRound } from './effects.js';
 
 /**
  * Обновить HUD
@@ -205,6 +206,10 @@ export function checkBalance() {
     el.beam.classList.add('shake');
     setTimeout(() => el.beam.classList.remove('shake'), 250);
     
+    // Красная пульсация фона
+    document.querySelector('.game-wrapper').classList.add('lose-pulse');
+    setTimeout(() => document.querySelector('.game-wrapper').classList.remove('lose-pulse'), 500);
+    
     showToast(`❌ ${message} (-${Math.round(pen)})`, 'error', 2000);
     updateHUD();
   }
@@ -217,6 +222,13 @@ function showRoundMsg(ok, pts, message) {
   const el = getElements();
   state.playing = false;
   el.btnCheck.disabled = true;
+
+  // Эффект успеха
+  if (ok) {
+    showSuccessRound();
+    document.querySelector('.game-wrapper').classList.add('win-pulse');
+    setTimeout(() => document.querySelector('.game-wrapper').classList.remove('win-pulse'), 500);
+  }
 
   const msg = document.createElement('div');
   msg.className = 'game-msg ' + (ok ? 'success' : 'fail');
@@ -264,6 +276,9 @@ function showLevelComplete() {
   state.shelfW = [];
   renderAll();
   el.btnCheck.disabled = true;
+
+  // Конфетти при завершении уровня
+  showConfetti();
 
   const cfg = CONFIG.levels[state.level];
   const bonus = 150 * cfg.mult;
@@ -320,6 +335,13 @@ export function endGame(reason) {
   const h = saveGame(reason);
 
   const cfg = CONFIG.levels[state.level];
+  
+  // Эффекты в зависимости от результата
+  if (reason === 'complete') {
+    showConfetti();
+  } else if (reason === 'time' || reason === 'failed') {
+    showLoseEffect();
+  }
   
   const titles = {
     complete: '🏆 Победа!',
