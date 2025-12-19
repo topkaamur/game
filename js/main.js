@@ -2,24 +2,19 @@
  * Главный модуль - инициализация и обработчики событий
  */
 
-import { state } from './state.js';
-import { showScreen } from './utils.js';
-import { getElements, showToast } from './ui.js';
-import { getHistory, clearHistory, renderHistory } from './storage.js';
-import { selected, clearSelection, moveSelectedTo } from './selection.js';
-import { startGame, startSingleLevel, startLevel, checkBalance, endGame } from './game.js';
-import { initBackgroundParticles } from './effects.js';
+(function (Game) {
+  'use strict';
 
 /**
  * Обновить историю на стартовом экране
  */
 function updateSplashHistory() {
-  const el = getElements();
-  const h = getHistory();
+  const el = Game.getElements();
+  const h = Game.getHistory();
   
   if (h.length > 0) {
     el.splashHistory.style.display = 'block';
-    renderHistory(el.splashHistoryList, h, 5);
+    Game.renderHistory(el.splashHistoryList, h, 5);
   } else {
     el.splashHistory.style.display = 'none';
   }
@@ -29,49 +24,58 @@ function updateSplashHistory() {
  * Инициализация приложения
  */
 function init() {
-  const el = getElements();
+  const el = Game.getElements();
 
   // Кнопка старта (все уровни)
-  el.btnStart.onclick = startGame;
+  el.btnStart.onclick = Game.startGame;
 
   // Кнопки выбора уровня
   document.querySelectorAll('.level-btn').forEach(btn => {
     btn.onclick = () => {
       const levelIndex = parseInt(btn.dataset.level);
-      startSingleLevel(levelIndex);
+      Game.startSingleLevel(levelIndex);
     };
   });
 
   // Кнопка проверки
-  el.btnCheck.onclick = checkBalance;
+  el.btnCheck.onclick = Game.checkBalance;
 
   // Кнопка пропуска
   el.btnSkip.onclick = () => {
-    if (confirm('Завершить игру?')) endGame('skipped');
+    if (confirm('Завершить игру?')) Game.endGame('skipped');
   };
 
   // Кнопка рестарта
   el.btnRestart.onclick = () => {
-    showScreen('game-screen');
-    state.level = 0;
-    state.score = 0;
-    state.totalRounds = 0;
-    state.successRounds = 0;
-    startLevel();
+    Game.showScreen('game-screen');
+    Game.state.level = 0;
+    Game.state.score = 0;
+    Game.state.totalRounds = 0;
+    Game.state.successRounds = 0;
+    Game.startLevel();
   };
 
   // Кнопка смены игрока
   el.btnNewPlayer.onclick = () => {
-    showScreen('splash-screen');
+    Game.showScreen('splash-screen');
     el.nameInput.value = '';
     el.nameInput.focus();
     updateSplashHistory();
   };
 
+  // Главное меню (после проигрыша) — без сброса имени
+  if (el.btnMenu) {
+    el.btnMenu.onclick = () => {
+      Game.showScreen('splash-screen');
+      updateSplashHistory();
+      el.nameInput.focus();
+    };
+  }
+
   // Очистка истории (стартовый экран)
   el.btnClearSplash.onclick = () => {
     if (confirm('Очистить историю?')) {
-      clearHistory();
+      Game.clearHistory();
       updateSplashHistory();
     }
   };
@@ -79,14 +83,14 @@ function init() {
   // Очистка истории (результаты)
   el.btnClearResults.onclick = () => {
     if (confirm('Очистить историю?')) {
-      clearHistory();
-      renderHistory(el.resultsHistoryList, []);
+      Game.clearHistory();
+      Game.renderHistory(el.resultsHistoryList, []);
     }
   };
 
   // Enter для старта
   el.nameInput.addEventListener('keydown', e => {
-    if (e.key === 'Enter') startGame();
+    if (e.key === 'Enter') Game.startGame();
   });
 
   // Горячие клавиши
@@ -99,22 +103,22 @@ function init() {
 
     if (key === 'a' || key === 'ф') {
       e.preventDefault();
-      if (selected.el) moveSelectedTo('left');
-      else showToast('Сначала кликни на гирьку', 'info', 1000);
+      if (Game.selected.el) Game.moveSelectedTo('left');
+      else Game.showToast('Сначала кликни на гирьку', 'info', 1000);
     } else if (key === 'd' || key === 'в') {
       e.preventDefault();
-      if (selected.el) moveSelectedTo('right');
-      else showToast('Сначала кликни на гирьку', 'info', 1000);
+      if (Game.selected.el) Game.moveSelectedTo('right');
+      else Game.showToast('Сначала кликни на гирьку', 'info', 1000);
     } else if (key === 'w' || key === 'ц') {
       e.preventDefault();
-      if (selected.el) moveSelectedTo('shelf');
-      else showToast('Сначала кликни на гирьку', 'info', 1000);
+      if (Game.selected.el) Game.moveSelectedTo('shelf');
+      else Game.showToast('Сначала кликни на гирьку', 'info', 1000);
     } else if (key === ' ') {
       e.preventDefault();
-      if (state.playing && !el.btnCheck.disabled) checkBalance();
+      if (Game.state.playing && !el.btnCheck.disabled) Game.checkBalance();
     } else if (key === 'escape') {
       e.preventDefault();
-      clearSelection(true);
+      Game.clearSelection(true);
     }
   });
 
@@ -123,22 +127,22 @@ function init() {
     if (!e.target.classList.contains('pan-weight') &&
         !e.target.classList.contains('shelf-weight') &&
         !e.target.classList.contains('falling-weight')) {
-      clearSelection(true);
+      Game.clearSelection(true);
     }
   });
 
   // Инициализация фоновых частиц
-  initBackgroundParticles();
+  Game.initBackgroundParticles();
 
   // Инициализация
   updateSplashHistory();
   el.nameInput.focus();
 
   // Показать рекорд
-  const h = getHistory();
+  const h = Game.getHistory();
   if (h.length > 0) {
     const best = h.reduce((a, b) => a.score > b.score ? a : b);
-    showToast(`🏆 Рекорд: ${best.name} — ${best.score}`, 'info', 3000);
+    Game.showToast(`🏆 Рекорд: ${best.name} — ${best.score}`, 'info', 3000);
   }
 }
 
@@ -149,5 +153,6 @@ if (document.readyState === 'loading') {
   init();
 }
 
-export default { init };
+Game.init = init;
+})(window.Game = window.Game || {});
 

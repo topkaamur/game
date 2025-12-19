@@ -2,13 +2,18 @@
  * Drag & Drop система
  */
 
-import { CONFIG } from './config.js';
-import { state } from './state.js';
-import { isOver } from './utils.js';
-import { getElements, showToast } from './ui.js';
-import { renderAll } from './scale.js';
-import { selectWeight, selectFallingWeight, clearSelection } from './selection.js';
-import { resumeFalling } from './spawner.js';
+(function (Game) {
+  'use strict';
+
+  const CONFIG = Game.CONFIG;
+  const state = Game.state;
+  const isOver = Game.isOver;
+  const getElements = Game.getElements;
+  const showToast = Game.showToast;
+  const selectWeight = Game.selectWeight;
+  const selectFallingWeight = Game.selectFallingWeight;
+  const clearSelection = Game.clearSelection;
+  const resumeFalling = (el) => Game.resumeFalling?.(el);
 
 // Состояние перетаскивания
 let ghost = null;
@@ -25,7 +30,7 @@ let tapMoved = false;
 /**
  * Сделать элемент перетаскиваемым
  */
-export function makeDraggable(element, from) {
+function makeDraggable(element, from) {
   // Отслеживание движения для определения тапа vs перетаскивания
   element.addEventListener('touchstart', e => {
     tapMoved = false;
@@ -114,7 +119,7 @@ function moveToShelfOnDoubleClick(element, from) {
   state.shelfW.push(value);
   
   showToast(`📦 +${value} на полку`, 'success', 800);
-  renderAll();
+  Game.renderAll();
 }
 
 /**
@@ -330,8 +335,9 @@ function dropWeight(target) {
     state.shelfW.push(v);
   }
 
-  renderAll();
+  Game.renderAll();
 }
 
-export default { makeDraggable };
+Game.makeDraggable = makeDraggable;
+})(window.Game = window.Game || {});
 

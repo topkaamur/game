@@ -176,6 +176,7 @@
         <div class="btn-group">
           <button class="btn-start" id="btn-restart">🔄 Играть снова</button>
           <button class="btn-secondary" id="btn-new-player">👤 Сменить игрока</button>
+          <button class="btn-secondary" id="btn-menu" style="display:none">🏠 Главное меню</button>
         </div>
       </div>
     </div>
@@ -186,6 +187,27 @@
 
 <div class="toast" id="toast"></div>
 
-<script type="module" src="js/index.js"></script>
+<!--
+  IMPORTANT:
+  We intentionally avoid ES modules so the game can run from disk (file://)
+  without a local server (some browsers block module loading from origin "null").
+-->
+<script>
+  // Single global namespace used by all scripts below
+  window.Game = window.Game || {};
+</script>
+<script defer src="js/config.js"></script>
+<script defer src="js/state.js"></script>
+<script defer src="js/utils.js"></script>
+<script defer src="js/ui.js"></script>
+<script defer src="js/effects.js"></script>
+<script defer src="js/storage.js"></script>
+<script defer src="js/weights.js"></script>
+<script defer src="js/selection.js"></script>
+<script defer src="js/dragdrop.js"></script>
+<script defer src="js/scale.js"></script>
+<script defer src="js/spawner.js"></script>
+<script defer src="js/game.js"></script>
+<script defer src="js/main.js"></script>
 </body>
 </html>

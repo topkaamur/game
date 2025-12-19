@@ -2,16 +2,15 @@
  * Управление весами и чашами
  */
 
-import { CONFIG } from './config.js';
-import { state } from './state.js';
-import { getElements } from './ui.js';
-import { makeDraggable } from './dragdrop.js';
+(function (Game) {
+  'use strict';
 
 /**
  * Обновить визуал весов
  */
-export function updateScale() {
-  const el = getElements();
+function updateScale() {
+  const el = Game.getElements();
+  const state = Game.state;
   const L = state.leftW.reduce((a, b) => a + b, 0);
   const R = state.rightW.reduce((a, b) => a + b, 0);
 
@@ -44,19 +43,20 @@ export function updateScale() {
 /**
  * Отрендерить чашу
  */
-export function renderPan(panEl, weights) {
+function renderPan(panEl, weights) {
   const side = panEl.dataset.side;
   panEl.innerHTML = weights.map(w => 
     `<div class="pan-weight" data-value="${w}">${w}</div>`
   ).join('');
-  panEl.querySelectorAll('.pan-weight').forEach(w => makeDraggable(w, side));
+  panEl.querySelectorAll('.pan-weight').forEach(w => Game.makeDraggable(w, side));
 }
 
 /**
  * Отрендерить полку
  */
-export function renderShelf() {
-  const el = getElements();
+function renderShelf() {
+  const el = Game.getElements();
+  const state = Game.state;
   el.shelf.querySelectorAll('.shelf-weight').forEach(w => w.remove());
   
   state.shelfW.forEach(w => {
@@ -64,7 +64,7 @@ export function renderShelf() {
     div.className = 'shelf-weight';
     div.dataset.value = w;
     div.textContent = w;
-    makeDraggable(div, 'shelf');
+    Game.makeDraggable(div, 'shelf');
     el.shelf.appendChild(div);
   });
 }
@@ -72,13 +72,18 @@ export function renderShelf() {
 /**
  * Перерендерить все
  */
-export function renderAll() {
-  const el = getElements();
+function renderAll() {
+  const el = Game.getElements();
+  const state = Game.state;
   renderPan(el.panLeft, state.leftW);
   renderPan(el.panRight, state.rightW);
   renderShelf();
   updateScale();
 }
 
-export default { updateScale, renderPan, renderShelf, renderAll };
+Game.updateScale = updateScale;
+Game.renderPan = renderPan;
+Game.renderShelf = renderShelf;
+Game.renderAll = renderAll;
+})(window.Game = window.Game || {});
 

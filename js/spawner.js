@@ -2,25 +2,26 @@
  * Спавн падающих гирек
  */
 
-import { CONFIG } from './config.js';
-import { state } from './state.js';
-import { rand } from './utils.js';
-import { getElements, showToast } from './ui.js';
-import { refillWeightPool } from './weights.js';
-import { makeDraggable } from './dragdrop.js';
-import { updateHUD } from './game.js';
+(function (Game) {
+  'use strict';
+
+  const CONFIG = Game.CONFIG;
+  const state = Game.state;
+  const rand = Game.rand;
+  const getElements = Game.getElements;
+  const showToast = Game.showToast;
 
 /**
  * Создать падающую гирьку
  */
-export function spawnWeight() {
+function spawnWeight() {
   if (!state.playing) return;
 
   const el = getElements();
   const cfg = CONFIG.levels[state.level];
 
   if (state.weightPool.length === 0) {
-    refillWeightPool();
+    Game.refillWeightPool();
   }
 
   const v = state.weightPool.pop();
@@ -57,7 +58,7 @@ export function spawnWeight() {
       showToast(`💥 Бомба! -${penalty}`, 'error', 1500);
       w.style.animation = 'explode 0.4s ease forwards';
       setTimeout(() => w.remove(), 400);
-      updateHUD();
+      Game.updateHUD();
       return;
     }
 
@@ -70,7 +71,7 @@ export function spawnWeight() {
 
   // Только для обычных гирек
   if (!isBomb) {
-    makeDraggable(w, 'falling');
+    Game.makeDraggable(w, 'falling');
   }
 
   // Таймаут пропуска гирьки
@@ -82,7 +83,7 @@ export function spawnWeight() {
       // Штраф только за пропуск обычных гирек, не бомб
       if (!isBomb) {
         state.score = Math.max(0, state.score - CONFIG.missedPenalty * cfg.mult);
-        updateHUD();
+        Game.updateHUD();
       }
     }
   }, Math.round(fallVariation));
@@ -93,7 +94,7 @@ export function spawnWeight() {
 /**
  * Возобновить падение гирьки
  */
-export function resumeFalling(weightEl) {
+function resumeFalling(weightEl) {
   if (!weightEl || !weightEl.parentNode) return;
 
   const el = getElements();
@@ -126,7 +127,7 @@ export function resumeFalling(weightEl) {
       weightEl.style.animation = 'flyAway 0.3s ease forwards';
       setTimeout(() => weightEl.remove(), 300);
       state.score = Math.max(0, state.score - CONFIG.missedPenalty * cfg.mult);
-      updateHUD();
+      Game.updateHUD();
     }
   }, remainingTime);
 
@@ -136,7 +137,7 @@ export function resumeFalling(weightEl) {
 /**
  * Начать спавн гирек
  */
-export function startSpawning() {
+function startSpawning() {
   const cfg = CONFIG.levels[state.level];
   spawnWeight();
   state.spawnInt = setInterval(spawnWeight, cfg.spawnInterval);
@@ -145,10 +146,14 @@ export function startSpawning() {
 /**
  * Остановить спавн гирек
  */
-export function stopSpawning() {
+function stopSpawning() {
   const el = getElements();
   clearInterval(state.spawnInt);
   el.fallZone.innerHTML = '';
 }
 
-export default { spawnWeight, resumeFalling, startSpawning, stopSpawning };
+Game.spawnWeight = spawnWeight;
+Game.resumeFalling = resumeFalling;
+Game.startSpawning = startSpawning;
+Game.stopSpawning = stopSpawning;
+})(window.Game = window.Game || {});

@@ -2,14 +2,14 @@
  * Генерация гирек с гарантией решения
  */
 
-import { CONFIG } from './config.js';
-import { state } from './state.js';
-import { rand, shuffle } from './utils.js';
+(function (Game) {
+  'use strict';
 
 /**
  * Генерация набора гирек для целевой суммы
  */
 function generateWeightsForSum(targetSum, count, min, max) {
+  const rand = Game.rand;
   const weights = [];
   let remaining = targetSum;
 
@@ -43,6 +43,8 @@ function generateWeightsForSum(targetSum, count, min, max) {
  * Генерация гирек для уровня "Баланс"
  */
 function generateBalanceWeights(cfg, count) {
+  const rand = Game.rand;
+  const shuffle = Game.shuffle;
   const weights = [];
   const minTarget = cfg.min * 2;
   const maxTarget = Math.min(cfg.max * 3, 100);
@@ -65,9 +67,11 @@ function generateBalanceWeights(cfg, count) {
  * Генерация гирек для уровня "Точная сумма"
  */
 function generateTargetWeights(cfg, count) {
+  const rand = Game.rand;
+  const shuffle = Game.shuffle;
   const weights = [];
   const target = rand(cfg.targetMin, cfg.targetMax);
-  state.targetSum = target;
+  Game.state.targetSum = target;
 
   // Гирьки для левой и правой чаши
   const leftWeights = generateWeightsForSum(target, rand(2, 4), cfg.min, cfg.max);
@@ -88,6 +92,8 @@ function generateTargetWeights(cfg, count) {
  * Генерация гирек для уровня "Ловушки"
  */
 function generateTrapsWeights(cfg, count) {
+  const rand = Game.rand;
+  const shuffle = Game.shuffle;
   const weights = [];
   const minTarget = cfg.min * 2;
   const maxTarget = Math.min(cfg.max * 3, 100);
@@ -117,7 +123,10 @@ function generateTrapsWeights(cfg, count) {
 /**
  * Пополнить пул гирек в зависимости от типа уровня
  */
-export function refillWeightPool() {
+function refillWeightPool() {
+  const CONFIG = Game.CONFIG;
+  const state = Game.state;
+  const rand = Game.rand;
   const cfg = CONFIG.levels[state.level];
   const count = rand(12, 20);
 
@@ -135,4 +144,5 @@ export function refillWeightPool() {
   }
 }
 
-export default { refillWeightPool };
+Game.refillWeightPool = refillWeightPool;
+})(window.Game = window.Game || {});

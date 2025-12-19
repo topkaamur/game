@@ -2,14 +2,11 @@
  * Выделение гирек (для клавиатурного управления)
  */
 
-import { CONFIG } from './config.js';
-import { state } from './state.js';
-import { showToast } from './ui.js';
-import { renderAll } from './scale.js';
-import { resumeFalling } from './spawner.js';
+(function (Game) {
+  'use strict';
 
 // Текущая выделенная гирька
-export const selected = {
+const selected = {
   el: null,
   from: null,
   value: null
@@ -23,7 +20,8 @@ function isMobileLikeDevice() {
 /**
  * Выделить гирьку на чаше/полке
  */
-export function selectWeight(element, from) {
+function selectWeight(element, from) {
+  const state = Game.state;
   if (!state.playing) return;
   clearSelection(true);
   selected.el = element;
@@ -31,14 +29,15 @@ export function selectWeight(element, from) {
   selected.value = parseInt(element.dataset.value);
   element.classList.add('selected');
   if (!isMobileLikeDevice()) {
-    showToast(`Гирька ${selected.value} — A/D/W`, 'info', 1200);
+    Game.showToast(`Гирька ${selected.value} — A/D/W`, 'info', 1200);
   }
 }
 
 /**
  * Выделить падающую гирьку
  */
-export function selectFallingWeight(element) {
+function selectFallingWeight(element) {
+  const state = Game.state;
   if (!state.playing) return;
   clearSelection(true);
   selected.el = element;
@@ -46,19 +45,19 @@ export function selectFallingWeight(element) {
   selected.value = parseInt(element.dataset.value);
   element.classList.add('selected');
   if (!isMobileLikeDevice()) {
-    showToast(`Поймана ${selected.value} — A/D/W`, 'success', 1200);
+    Game.showToast(`Поймана ${selected.value} — A/D/W`, 'success', 1200);
   }
 }
 
 /**
  * Снять выделение
  */
-export function clearSelection(resumePrevious = false) {
+function clearSelection(resumePrevious = false) {
   if (selected.el) {
     selected.el.classList.remove('selected');
     // Возобновить падение если была падающая гирька
     if (resumePrevious && selected.from === 'falling' && selected.el.parentNode) {
-      resumeFalling(selected.el);
+      Game.resumeFalling(selected.el);
     }
   }
   selected.el = null;
@@ -69,26 +68,28 @@ export function clearSelection(resumePrevious = false) {
 /**
  * Переместить выделенную гирьку
  */
-export function moveSelectedTo(target) {
+function moveSelectedTo(target) {
+  const CONFIG = Game.CONFIG;
+  const state = Game.state;
   if (!selected.el || !state.playing) return;
 
   // Проверка лимитов
   if (target === 'left' && state.leftW.length >= CONFIG.panMax) {
-    showToast('⚖️ Левая чаша полная!', 'error', 1000);
+    Game.showToast('⚖️ Левая чаша полная!', 'error', 1000);
     const pan = document.getElementById('pan-left');
     pan.classList.add('shake-pan');
     setTimeout(() => pan.classList.remove('shake-pan'), 400);
     return;
   }
   if (target === 'right' && state.rightW.length >= CONFIG.panMax) {
-    showToast('⚖️ Правая чаша полная!', 'error', 1000);
+    Game.showToast('⚖️ Правая чаша полная!', 'error', 1000);
     const pan = document.getElementById('pan-right');
     pan.classList.add('shake-pan');
     setTimeout(() => pan.classList.remove('shake-pan'), 400);
     return;
   }
   if (target === 'shelf' && state.shelfW.length >= CONFIG.shelfMax) {
-    showToast('📦 Полка заполнена!', 'error', 1000);
+    Game.showToast('📦 Полка заполнена!', 'error', 1000);
     const shelf = document.getElementById('shelf');
     shelf.classList.add('shake');
     setTimeout(() => shelf.classList.remove('shake'), 400);
@@ -115,8 +116,13 @@ export function moveSelectedTo(target) {
   else state.shelfW.push(selected.value);
 
   clearSelection();
-  renderAll();
+  Game.renderAll();
 }
 
-export default { selected, selectWeight, selectFallingWeight, clearSelection, moveSelectedTo };
+Game.selected = selected;
+Game.selectWeight = selectWeight;
+Game.selectFallingWeight = selectFallingWeight;
+Game.clearSelection = clearSelection;
+Game.moveSelectedTo = moveSelectedTo;
+})(window.Game = window.Game || {});
 

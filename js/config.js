@@ -2,7 +2,10 @@
  * Конфигурация игры
  */
 
-export const CONFIG = {
+(function (Game) {
+  'use strict';
+
+  const CONFIG = {
   // Настройки уровней
   levels: [
     {
@@ -67,6 +70,7 @@ export const CONFIG = {
 
   // Drag & Drop
   dragThreshold: 5
-};
+  };
 
-export default CONFIG;
+  Game.CONFIG = CONFIG;
+})(window.Game = window.Game || {});

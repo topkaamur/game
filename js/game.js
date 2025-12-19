@@ -2,21 +2,16 @@
  * Основная игровая логика
  */
 
-import { CONFIG } from './config.js';
-import { state, resetRoundState } from './state.js';
-import { $, showScreen } from './utils.js';
-import { getElements, showToast } from './ui.js';
-import { renderAll, updateScale } from './scale.js';
-import { refillWeightPool } from './weights.js';
-import { startSpawning, stopSpawning } from './spawner.js';
-import { saveGame, renderHistory } from './storage.js';
-import { showConfetti, showLoseEffect, showSuccessRound } from './effects.js';
+(function (Game) {
+  'use strict';
 
 /**
  * Обновить HUD
  */
-export function updateHUD() {
-  const el = getElements();
+function updateHUD() {
+  const el = Game.getElements();
+  const state = Game.state;
+  const CONFIG = Game.CONFIG;
   const cfg = CONFIG.levels[state.level];
 
   el.hudLevel.textContent = cfg.id;
@@ -50,8 +45,10 @@ export function updateHUD() {
 /**
  * Отрендерить точки раундов
  */
-export function renderRoundDots() {
-  const el = getElements();
+function renderRoundDots() {
+  const el = Game.getElements();
+  const state = Game.state;
+  const CONFIG = Game.CONFIG;
   const cfg = CONFIG.levels[state.level];
   
   el.roundDots.innerHTML = '';
@@ -70,37 +67,41 @@ export function renderRoundDots() {
 /**
  * Начать игру (все уровни с начала)
  */
-export function startGame() {
-  const el = getElements();
+function startGame() {
+  const el = Game.getElements();
+  const state = Game.state;
   state.name = el.nameInput.value.trim() || 'Игрок';
   state.level = 0;
   state.score = 0;
   state.totalRounds = 0;
   state.successRounds = 0;
   state.singleLevel = false;
-  showScreen('game-screen');
+  Game.showScreen('game-screen');
   startLevel();
 }
 
 /**
  * Начать конкретный уровень
  */
-export function startSingleLevel(levelIndex) {
-  const el = getElements();
+function startSingleLevel(levelIndex) {
+  const el = Game.getElements();
+  const state = Game.state;
   state.name = el.nameInput.value.trim() || 'Игрок';
   state.level = levelIndex;
   state.score = 0;
   state.totalRounds = 0;
   state.successRounds = 0;
   state.singleLevel = true; // Режим одного уровня
-  showScreen('game-screen');
+  Game.showScreen('game-screen');
   startLevel();
 }
 
 /**
  * Начать уровень
  */
-export function startLevel() {
+function startLevel() {
+  const state = Game.state;
+  const CONFIG = Game.CONFIG;
   const cfg = CONFIG.levels[state.level];
   state.round = 0;
   state.roundResults = [];
@@ -108,7 +109,7 @@ export function startLevel() {
   state.playing = true;
   
   // Показать подсказку по уровню
-  showToast(`${cfg.name}: ${cfg.description}`, 'info', 3000);
+  Game.showToast(`${cfg.name}: ${cfg.description}`, 'info', 3000);
   
   updateHUD();
   renderRoundDots();
@@ -119,22 +120,23 @@ export function startLevel() {
 /**
  * Начать раунд
  */
-export function startRound() {
-  const el = getElements();
-  resetRoundState();
-  refillWeightPool();
+function startRound() {
+  const el = Game.getElements();
+  Game.resetRoundState();
+  Game.refillWeightPool();
   el.panLeft.innerHTML = '';
   el.panRight.innerHTML = '';
-  renderAll();
-  stopSpawning();
-  startSpawning();
+  Game.renderAll();
+  Game.stopSpawning();
+  Game.startSpawning();
   updateHUD();
 }
 
 /**
  * Запустить таймер
  */
-export function startTimer() {
+function startTimer() {
+  const state = Game.state;
   clearInterval(state.timerInt);
   state.timerInt = setInterval(() => {
     if (!state.playing) return;
@@ -147,10 +149,12 @@ export function startTimer() {
 /**
  * Проверить баланс/условие победы
  */
-export function checkBalance() {
+function checkBalance() {
+  const state = Game.state;
+  const CONFIG = Game.CONFIG;
   if (!state.playing) return;
 
-  const el = getElements();
+  const el = Game.getElements();
   const cfg = CONFIG.levels[state.level];
   const L = state.leftW.reduce((a, b) => a + b, 0);
   const R = state.rightW.reduce((a, b) => a + b, 0);
@@ -187,7 +191,7 @@ export function checkBalance() {
     state.successRounds++;
     state.playing = false;
     el.btnCheck.disabled = true;
-    stopSpawning();
+    Game.stopSpawning();
 
     let pts = CONFIG.basePoints * cfg.mult;
     if (state.leftW.length + state.rightW.length >= 4) pts += CONFIG.perfectBonus;
@@ -210,7 +214,7 @@ export function checkBalance() {
     document.querySelector('.game-wrapper').classList.add('lose-pulse');
     setTimeout(() => document.querySelector('.game-wrapper').classList.remove('lose-pulse'), 500);
     
-    showToast(`❌ ${message} (-${Math.round(pen)})`, 'error', 2000);
+    Game.showToast(`❌ ${message} (-${Math.round(pen)})`, 'error', 2000);
     updateHUD();
   }
 }
@@ -219,13 +223,14 @@ export function checkBalance() {
  * Показать сообщение раунда
  */
 function showRoundMsg(ok, pts, message) {
-  const el = getElements();
+  const el = Game.getElements();
+  const state = Game.state;
   state.playing = false;
   el.btnCheck.disabled = true;
 
   // Эффект успеха
   if (ok) {
-    showSuccessRound();
+    Game.showSuccessRound();
     document.querySelector('.game-wrapper').classList.add('win-pulse');
     setTimeout(() => document.querySelector('.game-wrapper').classList.remove('win-pulse'), 500);
   }
@@ -249,6 +254,8 @@ function showRoundMsg(ok, pts, message) {
  * Следующий раунд
  */
 function nextRound() {
+  const state = Game.state;
+  const CONFIG = Game.CONFIG;
   const cfg = CONFIG.levels[state.level];
   const wins = state.roundResults.filter(r => r).length;
 
@@ -267,18 +274,20 @@ function nextRound() {
  * Показать завершение уровня
  */
 function showLevelComplete() {
-  const el = getElements();
+  const el = Game.getElements();
+  const state = Game.state;
+  const CONFIG = Game.CONFIG;
   state.playing = false;
-  stopSpawning();
+  Game.stopSpawning();
 
   state.leftW = [];
   state.rightW = [];
   state.shelfW = [];
-  renderAll();
+  Game.renderAll();
   el.btnCheck.disabled = true;
 
   // Конфетти при завершении уровня
-  showConfetti();
+  Game.showConfetti();
 
   const cfg = CONFIG.levels[state.level];
   const bonus = 150 * cfg.mult;
@@ -311,7 +320,7 @@ function showLevelComplete() {
   el.gameArea.appendChild(ov);
 
   const btnId = nextLevel ? 'btn-next' : 'btn-finish';
-  $(btnId).onclick = () => {
+  Game.$(btnId).onclick = () => {
     ov.remove();
     if (nextLevel) {
       state.level++;
@@ -325,22 +334,24 @@ function showLevelComplete() {
 /**
  * Завершить игру
  */
-export function endGame(reason) {
-  const el = getElements();
+function endGame(reason) {
+  const el = Game.getElements();
+  const state = Game.state;
+  const CONFIG = Game.CONFIG;
   state.playing = false;
   el.btnCheck.disabled = true;
   clearInterval(state.timerInt);
-  stopSpawning();
+  Game.stopSpawning();
 
-  const h = saveGame(reason);
+  const h = Game.saveGame(reason);
 
   const cfg = CONFIG.levels[state.level];
   
   // Эффекты в зависимости от результата
   if (reason === 'complete') {
-    showConfetti();
+    Game.showConfetti();
   } else if (reason === 'time' || reason === 'failed') {
-    showLoseEffect();
+    Game.showLoseEffect();
   }
   
   const titles = {
@@ -369,17 +380,21 @@ export function endGame(reason) {
     ? Math.round((state.successRounds / state.totalRounds) * 100) + '%'
     : '—';
 
-  renderHistory(el.resultsHistoryList, h, 10);
-  showScreen('results-screen');
+  Game.renderHistory(el.resultsHistoryList, h, 10);
+  // Кнопка "Главное меню" доступна всегда
+  if (el.btnMenu) {
+    el.btnMenu.style.display = '';
+  }
+  Game.showScreen('results-screen');
 }
 
-export default {
-  updateHUD,
-  renderRoundDots,
-  startGame,
-  startSingleLevel,
-  startLevel,
-  startRound,
-  checkBalance,
-  endGame
-};
+Game.updateHUD = updateHUD;
+Game.renderRoundDots = renderRoundDots;
+Game.startGame = startGame;
+Game.startSingleLevel = startSingleLevel;
+Game.startLevel = startLevel;
+Game.startRound = startRound;
+Game.startTimer = startTimer;
+Game.checkBalance = checkBalance;
+Game.endGame = endGame;
+})(window.Game = window.Game || {});

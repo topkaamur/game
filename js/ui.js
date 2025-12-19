@@ -2,86 +2,92 @@
  * UI компоненты - уведомления и DOM-элементы
  */
 
-import { $ } from './utils.js';
+(function (Game) {
+  'use strict';
 
-// Кэш DOM-элементов
-let elements = null;
+  // Кэш DOM-элементов
+  let elements = null;
 
-/**
- * Инициализация и получение DOM-элементов
- */
-export function getElements() {
-  if (elements) return elements;
+  /**
+   * Инициализация и получение DOM-элементов
+   */
+  function getElements() {
+    if (elements) return elements;
 
-  elements = {
-    // Экраны
-    splash: $('splash-screen'),
-    game: $('game-screen'),
-    results: $('results-screen'),
+    const $ = Game.$;
 
-    // Ввод
-    nameInput: $('player-name'),
+    elements = {
+      // Экраны
+      splash: $('splash-screen'),
+      game: $('game-screen'),
+      results: $('results-screen'),
 
-    // Кнопки
-    btnStart: $('btn-start'),
-    btnCheck: $('btn-check'),
-    btnSkip: $('btn-skip'),
-    btnRestart: $('btn-restart'),
-    btnNewPlayer: $('btn-new-player'),
-    btnClearSplash: $('btn-clear-splash'),
-    btnClearResults: $('btn-clear-results'),
+      // Ввод
+      nameInput: $('player-name'),
 
-    // HUD
-    hudLevel: $('hud-level'),
-    hudRound: $('hud-round'),
-    hudTime: $('hud-time'),
-    hudScore: $('hud-score'),
-    timeBar: $('time-bar'),
-    roundDots: $('round-dots'),
-    targetDisplay: $('target-display'),
-    targetValue: $('target-value'),
+      // Кнопки
+      btnStart: $('btn-start'),
+      btnCheck: $('btn-check'),
+      btnSkip: $('btn-skip'),
+      btnRestart: $('btn-restart'),
+      btnNewPlayer: $('btn-new-player'),
+      btnMenu: $('btn-menu'),
+      btnClearSplash: $('btn-clear-splash'),
+      btnClearResults: $('btn-clear-results'),
 
-    // Игровая область
-    gameArea: $('game-area'),
-    fallZone: $('fall-zone'),
-    shelf: $('shelf'),
-    beam: $('beam'),
-    panLeft: $('pan-left'),
-    panRight: $('pan-right'),
-    panZoneLeft: $('pan-zone-left'),
-    panZoneRight: $('pan-zone-right'),
-    totalLeft: $('total-left'),
-    totalRight: $('total-right'),
+      // HUD
+      hudLevel: $('hud-level'),
+      hudRound: $('hud-round'),
+      hudTime: $('hud-time'),
+      hudScore: $('hud-score'),
+      timeBar: $('time-bar'),
+      roundDots: $('round-dots'),
+      targetDisplay: $('target-display'),
+      targetValue: $('target-value'),
 
-    // Результаты
-    resultsTitle: $('results-title'),
-    finalScore: $('final-score'),
-    resultsMsg: $('results-msg'),
-    statLevel: $('stat-level'),
-    statRounds: $('stat-rounds'),
-    statAcc: $('stat-acc'),
+      // Игровая область
+      gameArea: $('game-area'),
+      fallZone: $('fall-zone'),
+      shelf: $('shelf'),
+      beam: $('beam'),
+      panLeft: $('pan-left'),
+      panRight: $('pan-right'),
+      panZoneLeft: $('pan-zone-left'),
+      panZoneRight: $('pan-zone-right'),
+      totalLeft: $('total-left'),
+      totalRight: $('total-right'),
 
-    // История
-    splashHistory: $('splash-history'),
-    splashHistoryList: $('splash-history-list'),
-    resultsHistoryList: $('results-history-list'),
+      // Результаты
+      resultsTitle: $('results-title'),
+      finalScore: $('final-score'),
+      resultsMsg: $('results-msg'),
+      statLevel: $('stat-level'),
+      statRounds: $('stat-rounds'),
+      statAcc: $('stat-acc'),
 
-    // Тост
-    toast: $('toast')
-  };
+      // История
+      splashHistory: $('splash-history'),
+      splashHistoryList: $('splash-history-list'),
+      resultsHistoryList: $('results-history-list'),
 
-  return elements;
-}
+      // Тост
+      toast: $('toast')
+    };
 
-/**
- * Показать уведомление
- */
-export function showToast(msg, type = 'info', duration = 2000) {
-  const el = getElements();
-  el.toast.textContent = msg;
-  el.toast.className = 'toast show ' + type;
-  setTimeout(() => el.toast.classList.remove('show'), duration);
-}
+    return elements;
+  }
 
-export default { getElements, showToast };
+  /**
+   * Показать уведомление
+   */
+  function showToast(msg, type = 'info', duration = 2000) {
+    const el = getElements();
+    el.toast.textContent = msg;
+    el.toast.className = 'toast show ' + type;
+    setTimeout(() => el.toast.classList.remove('show'), duration);
+  }
+
+  Game.getElements = getElements;
+  Game.showToast = showToast;
+})(window.Game = window.Game || {});
 

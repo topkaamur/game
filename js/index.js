@@ -1,11 +1,3 @@
-export * from './utils.js';
-export * from './ui.js';
-export * from './state.js';
-export * from './game.js';
-export * from './spawner.js';
-export * from './selection.js';
-export * from './dragdrop.js';
-export * from './scale.js';
-export * from './weights.js';
-export * from './storage.js';
-export * from './main.js';
+// Legacy entrypoint: ES-module re-export barrel.
+// We no longer use ES modules to support running via file:// without a server.
+// Keep file for backwards compatibility, but it does nothing now.
